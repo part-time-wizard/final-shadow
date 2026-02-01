@@ -2,10 +2,11 @@ print("! Cisco IOS XE Software Hardening Guide")
 print("! Version 0.0.001")
 print("================================")
 
-# No Service Password-Recovery
+# General Management Plane Hardening
+# |-- No Service Password-Recovery
 print("no service password-recovery")
 
-# Disable Unused Services
+# |-- Disable Unused Services
 print("no service tcp-small-servers")
 print("no service udp-small-servers")
 print("no ip finger")
@@ -22,30 +23,46 @@ print("no sdflash")
 print("no guestshell")
 print("no vstack")
 
-# EXEC Timeout
+# |-- EXEC Timeout
 print("line con 0")
 print(" exec-timeout 5 0")
 print("line vty 0 4")
 print(" exec-timeout 5 0")
 
-# Keepalive for TCP Sessions
+# |-- Keepalive for TCP Sessions
 print("ip tcp keepalive-in")
 print("ip tcp keepalive-out")
 
-# Management Interface Use
+# |-- Management Interface Use
 print("interface Loopback0")
 print("ip address <management_ip_address> <subnet_mask>")
-#  To-Do: Add source interface for management protocols
+print('ntp source Loopback0')
 
-# Memory Threshold Notifications
+#  To-Do: Add source interface for management protocols
+#  To-Do: Need to add default route via management interface with VRF
+#  To-Do: Need to determine layer-2 vs. layer-3 management interface configuration
+
+# |-- Memory Threshold Notifications
 print("memory free low-watermark processor <threshold_value>")
 print("memory free low-watermark io <threshold_value>")
 print("memory reserve critical <threshold_value>")
 
-# CPU Thresholding Notification
+# |-- CPU Thresholding Notification
 print("snmp-server enable traps cpu threshold")
 print("snmp-server host <host-address> <community-string> cpu")
 print("rocess cpu threshold type <type> rising <percentage> interval <seconds> [falling <percentage> interval <seconds>]")
 print("process cpu statistics limit entry-percentage <number> [size <seconds>]")
 #  To-Do: Replace placeholders with actual values by device type
 
+# \-- Network Time Protocol
+print("ntp authenticate")
+print("ntp authentication-key <key_number #1> md5 <key_string #1>")
+print("ntp authentication-key <key_number #2> md5 <key_string #2>")
+print("ntp trusted-key <key_number #1>")
+print("ntp trusted-key <key_number #2>")
+print("ntp server <ntp_server_ip_address> key <key_number #1>")
+print("ntp server <ntp_server_ip_address> key <key_number #2>")
+
+#  Limit Access to the Network with Infrastructure ACLs
+
+#  To-Do: Add Infrastructure ACLs for every interface with an IP address, Mgmt, Loopback, SVI, etc.
