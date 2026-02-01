@@ -4,7 +4,7 @@ print("!================================")
 
 # General Management Plane Hardening
 # |-- No Service Password-Recovery
-print("no service password-recovery")
+# print("no service password-recovery"). # Deterimine if this is desired in your environment
 
 # |-- Disable Unused Services
 print("no service tcp-small-servers")
@@ -156,3 +156,85 @@ permit ip any any
 '''
 
 # Secure Interactive Management Sessions
+# |-- Management Plane Protection
+print("control-plane host")
+print("management-interface Loopback0 allow ssh https")
+
+# |-- Control Plane Protection
+
+'''
+See the Control Plan Policing Guide for full configuration details.
+Add link to CCP Guide here.
+'''
+
+# |-- Encrypt Management Sessions
+# This is a configuration example for SSH services:
+print("ip domain-name example.com")
+print("crypto key generate rsa modulus 2048")
+print("ip ssh time-out 60")
+print("ip ssh authentication-retries 3")
+print("ip ssh source-interface GigabitEthernet 0/1")
+print("line vty 0 4")
+print("transport input ssh")
+# This configuration example enables SCP services:
+print("ip scp server enable")
+# This is a configuration example for HTTPS services:
+print("crypto key generate rsa modulus 2048")
+print("ip http secure-server")
+
+# |-- SSHv2
+print("hostname router")
+print("ip domain-name example.com")
+print("crypto key generate rsa modulus 2048")
+print("ip ssh time-out 60")
+print("ip ssh authentication-retries 3")
+print("ip ssh source-interface GigabitEthernet 0/1")
+print("ip ssh version 2")
+print("line vty 0 4")
+print("transport input ssh")
+
+# |-- SSHv2 Enhancements for RSA Keys
+
+#Configure a hostname for the device.
+print("hostname router")
+#Configure a domain name.
+print("ip domain name cisco.com")
+#Generate RSA key pairs that use a modulus of 2048 bits.
+print("crypto key generate rsa modulus 2048")
+#Configure SSH-RSA keys for user and server authentication on the SSH server.
+print("ip ssh pubkey-chain")
+#Configure the SSH username.
+#Configure SSH-RSA keys for user and server authentication on the SSH server.
+print("ip ssh pubkey-chain")
+#Configure the SSH username.
+print("username ssh-user")
+#Specify the RSA public key of the remote peer.
+#You must then configure either the key-string command
+#(followed by the RSA public key of the remote peer) or the
+#key-hash command (followed by the SSH key type and version).
+'''
+Refer to Configuring the Cisco IOS XE SSH Server to Perform RSA-Based User Authentication for more information on the use of RSA keys with SSHv2.
+This example configuration enables the Cisco IOS XE SSH client to perform RSA-based server authentication.
+'''
+print("hostname router")
+print("ip domain-name cisco.com")
+#Generate RSA key pairs.
+print("crypto key generate rsa")
+#Configure SSH-RSA keys for user and server authentication on the SSH server.
+print("ip ssh pubkey-chain")
+#Enable the SSH server for public-key authentication on the router.
+print("server SSH-server-name")
+#Specify the RSA public-key of the remote peer.
+#You must then configure either the key-string command  (followed by the RSA public key of the remote peer) or thea
+print("key-hash <key-type> <key-name>") #command (followed by the SSH key type nd version).
+#Ensure that server authentication takes place - The connection is terminated on a failure.
+print("ip ssh stricthostkeycheck")
+
+# |-- Console and AUX Ports
+print("line aux 0")
+print("transport input none")
+print("transport output none")
+print("no exec exec-timeout 0 1")
+print("no password")
+print("exit")
+
