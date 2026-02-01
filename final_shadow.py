@@ -72,6 +72,87 @@ print("!ntp server <ntp_server_ip_address> key <key_number #1>")
 print("!ntp server <ntp_server_ip_address> key <key_number #2>")
 #  To-Do: Need to replace placeholders with actual values, determine if both keys are the same
 
-#  Limit Access to the Network with Infrastructure ACLs
+# Limit Access to the Network with Infrastructure ACLs
 
+'''
+ip access-list extended ACL-INFRASTRUCTURE-IN
+--- Permit required connections for routing protocols and network management
+permit tcp host <trusted-ebgp-peer> host <local-ebgp-address> eq 179
+permit tcp host <trusted-ebgp-peer> eq 179 host <local-ebgp-address>
+permit tcp host <trusted-management-stations> any eq 22
+permit udp host <trusted-netmgmt-servers> any eq 161
+--- Deny all other IP traffic to any network device
+deny ip any <infrastructure-address-space> <wildcard-mask>
+--- Permit transit traffic
+permit ip any any
+'''
+
+#  To-Do: Multiple sections of the Hardening Guide need to write to the same ACL.
 #  To-Do: Add Infrastructure ACLs for every interface with an IP address, Mgmt, Loopback, SVI, etc.
+
+# |-- ICMP Packet Filtering
+
+'''
+ip access-list extended ACL-INFRASTRUCTURE-IN
+--- Permit ICMP Echo (ping) from trusted management stations and servers
+permit icmp host <trusted-management-stations> any echo
+permit icmp host <trusted-netmgmt-servers> any echo
+--- Deny all other IP traffic to any network device
+deny ip any <infrastructure-address-space> <wildcard-mask>
+--- Permit transit traffic
+permit ip any any
+'''
+
+#  To-Do: Add ICMP filtering to Infrastructure ACLs for every interface with an IP address, Mgmt, Loopback, SVI, etc.
+#  To-Do: Need to replace placeholders with actual values
+
+# |-- Filter IP Fragments
+
+'''
+ip access-list extended ACL-INFRASTRUCTURE-IN
+--- Deny IP fragments that use protocol-specific ACEs to aid in
+--- classification of attack traffic
+deny tcp any any fragments
+deny udp any any fragments
+deny icmp any any fragments
+deny ip any any fragments
+--- Deny all other IP traffic to any network device
+deny ip any <infrastructure-address-space> <wildcard-mask>
+--- Permit transit traffic
+permit ip any any
+'''
+
+#  To-Do: Add IP fragment filtering to Infrastructure ACLs for every interface with an IP address, Mgmt, Loopback, SVI, etc.
+#  To-Do: Need to replace placeholders with actual values
+#  To-Do: Need to confirm fragment filtering does not impact legitimate traffic
+#  To-Do: Fragment filtering needs to be first in the ACL to be effective
+
+#  |-- ACL Support for Filtering IP Options
+
+'''
+ip access-list extended ACL-INFRASTRUCTURE-IN
+--- Deny IP packets that contain IP options
+deny ip any any option any-options
+--- Deny all other IP traffic to any network device
+deny ip any <infrastructure-address-space> <wildcard-mask>
+--- Permit transit traffic
+permit ip any any
+''' 
+#  To-Do: Add IP options filtering to Infrastructure ACLs for every interface with an IP address, Mgmt, Loopback, SVI, etc.
+#  To-Do: Need to replace placeholders with actual values
+#  To-Do: Need to confirm IP options filtering does not impact legitimate traffic
+#  To-Do: IP options filtering needs to be first in the ACL to be effective
+
+# \-- ACL Support to Filter on TTL Value
+
+'''
+ip access-list extended ACL-INFRASTRUCTURE-IN
+--- Deny IP packets with TTL values insufficient to traverse the network
+deny ip any any ttl lt 6
+--- Deny all other IP traffic to any network device
+deny ip any <infrastructure-address-space> <mask>
+--- Permit transit traffic
+permit ip any any
+'''
+
+# Secure Interactive Management Sessions
