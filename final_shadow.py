@@ -1,0 +1,22 @@
+print("! Cisco IOS XE Software Hardening Guide")
+print("! Version 0.0.001")
+print("================================")
+# No Service Password-Recovery
+print("no service password-recovery")
+# Disable Unused Services
+print("no service tcp-small-servers")
+print("no service udp-small-servers")
+print("no ip finger")
+print("ip dhcp bootp ignore")
+print("no mop enabled")
+print("no ip domain-lookup")
+print("no service pad")
+print("no ip http server")
+print("no ip http secure-server")
+print("no service config")
+print("no cdp run")
+print("no lldp run")
+print("no sdflash")
+print("no guestshell")
+print("no vstack")
+
