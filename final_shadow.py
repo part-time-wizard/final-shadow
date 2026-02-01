@@ -238,3 +238,23 @@ print("no exec exec-timeout 0 1")
 print("no password")
 print("exit")
 
+# |-- Control vty and tty Lines
+print("line vty 0 4")
+print("exec-timeout 5 0")
+print("access-class ACL-VTY-IN in")
+print("exit")
+print("ip access-list extended ACL-VTY-IN")
+print(" permit ip host <trusted-management-stations> any")
+print(" deny ip any any")
+#  To-Do: Replace placeholders with actual values
+
+# |-- Control Transport for vty and tty Lines
+print("line vty 0 4")
+print("transport input ssh")
+print("transport output none")
+
+# \-- Warning Banners
+print("banner login X")
+#  To-Do: Add appropriate warning banner text for DoD
+
+
