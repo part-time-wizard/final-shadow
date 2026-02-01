@@ -13,16 +13,23 @@ print("no ip finger")
 print("ip dhcp bootp ignore")
 #  To-Do: Need to confirm MOP is enabled on interfaces `Router#show subsys | include mop`
 print("no mop enabled")
-print("no ip domain-lookup")
+print("no ip domain lookup")
 print("no service pad")
 print("no ip http server")
 print("no ip http secure-server")
 print("no service config")
 print("no cdp run")
-print("no lldp run")
-print("no sdflash")
+print("no lldp run")  #Hidden command `show run all | inc lldp` to see command
+
+#  Note: The Cisco C9300, C9400, and C9500 do not have SD Flash slots.
+#  print("!no sdflash")
+
+#  Note: Command does not work in CML, need to try `guestshell disable` and/or `no iox`
 print("no guestshell")
+
+#  Note: vStack is the Smart Install (SMI) feature, uses TCP port 4786
 print("no vstack")
+print("no vstack config")  # Additional command to ensure there is no vStack Config
 
 # |-- EXEC Timeout
 print("line con 0")
@@ -31,8 +38,8 @@ print("line vty 0 4")
 print(" exec-timeout 5 0")
 
 # |-- Keepalive for TCP Sessions
-print("ip tcp keepalive-in")
-print("ip tcp keepalive-out")
+print("service tcp-keepalives-in")
+print("service tcp-keepalives-out")
 
 # |-- Management Interface Use
 print("interface Loopback0")
