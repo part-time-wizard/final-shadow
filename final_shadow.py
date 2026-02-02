@@ -257,4 +257,16 @@ print("transport output none")
 print("banner login X")
 #  To-Do: Add appropriate warning banner text for DoD
 
+# Authentication, Authorization, and Accounting
+# |-- TACACS+ Authentication
+print("aaa new-model")
+print("aaa authentication login default group tacacs+")
+print("tacacs server <server_name>")
+print(" address ipv4 <tacacs_server_ip_address>")
+print(" key <key>")
 
+# | |-- Method Lists
+
+# | \-- TACACS+ Over TLS 1.3
+
+# |-- Authentication Fallback
