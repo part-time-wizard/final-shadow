@@ -1,0 +1,542 @@
+{# =================================================================================================================================================== #}
+{#  Cisco IOS XE Switch NDM STIG - Catalyst Center Jinja2 Template                                                                                     #}
+{#  Owner: Joel Baker, National Ground Intelligence Center (NGIC), United States Army                                                                  #}
+{#  STIG Referecne: https://public.cyber.mil/stigs/downloads                                                                                           #}
+{#  STIG Version: Version 3 Release: 4 Benchmark Date: 02 JUL 2025                                                                                     #}
+{#  Template Version 1.0 - Updated: 16 SEP 2025                                                                                                        #}
+{#  Purpose: Map DISA Cisco IOS XE Switch NDM STIG requirements into Cisco Catalyst Center CLI Template for Cisco Catalyst 9000 Series Switches        #}
+{#  Usage: Paste into Catalyst Center > Design > Network Settings and bind variables                                                                   #}
+{#  Variables: Defaults are listed in the below template, assign defaults on Variables tab in template                                                 #}
+{#  Provide fully detailed commit notes including STIG ID's updated                                                                                    #}
+{#                                                                                                                                                     #}
+{#  List of Variables (with default value):                                                                                                            #}
+{#                                                                                                                                                     #}
+{#  Name                       Purpose                                        Default Value        Type                Sensitive                       #}
+{#  -----                      --------                                       -------------        ----                ---------                       #}
+{#  http_max_connections       Max number of http concurrent sessions         5                    Integer             No                              #}
+{#  net_mgmt_acl_name          Name of line vty ACL for SSH access            NET_MGMT_ACL         String              No                              #}
+{#  ccc_ip                     IP of Cisco Catalyst Center                    per enclave          IP Address          No                              #}
+{#  ise_ip_01                  IP of Cisco ISE Server #01                     per enclave          IP Address          No                              #}
+{#  ise_ip_02                  IP of Cisco ISE Server #02                     per enclave          IP Address          No                              #}
+{#  acas_ip_01                 IP of Tenable ACAS Scanner #01                 per enclave          IP Address          No                              #}
+{#  net_admin_network          IP Network with Network Admins                 per enclave          Network Address     No                              #}
+{#  net_admin_wildcard         Wildcard Mask of Network Admins                per enclave          Wildcard Mask       No                              #}
+{#  local_username             Account of last resort name                    emergency            String              No                              #}
+{#  local_password             Account of last resort password                per enclave          String              Yes                             #}
+{#  ntp_key_id_01              NTP Key Number                                 per enclave          Integer             No                              #}
+{#  ntp_key_id_02              NTP Key Number                                 per enclave          Integer             No                              #}
+{#  ntp_password_01            NTP Password                                   per enclave          String              Yes                             #}
+{#  ntp_password_02            NTP Password                                   per enclave          String              Yes                             #}
+{#  ntp_encryption_type        NTP Encryption (MD5, SHA)                      per enclave          String              No                              #}
+{#  ntp_server_ip_01           IP of NTP Server #01                           per enclave          IP Address          No                              #}
+{#  ntp_server_ip_02           IP of NTP Server #01                           per enclave          IP Address          No                              #}
+{#  snmpv3_group_name          SNMPv3 Group for Catalyst Center               SNMPV3_CCC_GROUP     String              No                              #}
+{#  snmpv3_view_read_name      SNMPv3 View Read-Only for Catalyst Center      SNMPV3_CCC_READ      String              No                              #}
+{#  snmpv3_view_write_name     SNMPv3 View Read-Write for Catalyst Center     SNMPV3_CCC_WRITE     String              No                              #}
+{#  snmpv3_user_name           SNMPv3 Username for Catalyst Center            SNMPV3_CCC_USER      String              No                              #}
+{#  snmpv3_auth_password       SNMPv3 Auth Password for Catalyst Center       per enclave          String              Yes                             #}
+{#  snmpv3_priv_password       SNMPv3 Priv Password for Catalyst Center       per enclave          String              Yes                             #}
+{#  pki_trustpoint_name        Name of Certificate Trustpoint                 per enclave          String              No                              #}
+{#  pki_trustpoint_url         URL for Certificates                           per enclave          String              No                              #}
+{#  syslog_server_ip_01        IP of Syslog Server #01                        per enclave          IP Address          No                              #}
+{#  syslog_server_ip_02        IP of Syslog Server #02                        per enclave          IP Address          No                              #}
+{# =================================================================================================================================================== #}
+
+
+
+{# =================================================================================================================================================== #}
+{#  MANAGEMENT PLANE – SESSION LIMITS                                                                                                                  #}
+{#  CISC-ND-000010 – The Cisco switch must be configured to limit the number of concurrent management sessions to an organization-defined number.      #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: NGIC Network Policy permits up to five (5) HTTPS or SSH Sessions to the network device concurrently                                        #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000010] Limit concurrent HTTP(S) management sessions
+ip http max-connections {{ http_max_connections | default('5', true) }}
+
+! [CISC-ND-000010] Restrict remote access methods and session counts
+line vty 0 4
+ transport input ssh
+line vty 5 15
+ transport input none
+
+
+
+{# =================================================================================================================================================== #}
+{#  ACCOUNT AUDIT – CONFIG LOGGING                                                                                                                     #}
+{#  CISC-ND-000090 – The Cisco switch must be configured to automatically audit account creation.                                                      #}
+{#  CISC-ND-000100 – The Cisco switch must be configured to automatically audit account modification.                                                  #}
+{#  CISC-ND-000110 – The Cisco switch must be configured to automatically audit account disabling actions.                                             #}
+{#  CISC-ND-000120 – The Cisco switch must be configured to automatically audit account removal actions.                                               #}
+{#  CISC-ND-000210 - The Cisco device must be configured to audit all administrator activity.                                                          #}
+{#  CISC-ND-000330 - The Cisco switch must be configured to generate audit records containing the full-text recording of privileged commands.          #}
+{#  CISC-ND-000880 - The Cisco switch must be configured to automatically audit account enabling actions.                                              #}
+{#  CISC-ND-001250 - The Cisco switch must be configured to generate log records when administrator privileges are deleted.                            #}
+{#  CISC-ND-001260 – The Cisco switch must be configured to generate audit records when successful/unsuccessful logon attempts occur.                  #}
+{#  CISC-ND-001270 - The Cisco switch must be configured to generate log records for privileged activities.                                            #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000090] Enable configuration change logging (audits account creation)
+! [CISC-ND-000100] Enable configuration change logging (audits account modification)
+! [CISC-ND-000110] Enable configuration change logging (audits account disabling)
+! [CISC-ND-000120] Enable configuration change logging (audits account removal)
+! [CISC-ND-000210] Enable configuration change logging (audits all admin activity)
+! [CISC-ND-000330] Enable configuration change logging (audits privileged commands)
+! [CISC-ND-000880] Enable configuration change logging (audits account enabling)
+! [CISC-ND-001250] Enable configuration change logging (audits admin privilege deletions)
+! [CISC-ND-001270] Enable configuration change logging (audits privileged activities)
+archive
+ log config
+  logging enable
+  
+! [CISC-ND-000210] Log user information for all administrator activity
+logging userinfo
+
+! [CISC-ND-001260] Log all successful and unsuccessful login attempts
+login on-failure log
+login on-success log
+
+
+
+{# =================================================================================================================================================== #}
+{#  VTY ACCESS CONTROL – MANAGEMENT NETWORK                                                                                                            #}
+{#  CISC-ND-000140 – The Cisco switch must be configured to enforce approved authorizations for controlling the flow of management information within  #}
+{#                   the device based on control policies.                                                                                             #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: NGIC Network Policy is to only permit SSH Traffic from: Cisco Catalyst Center, Cisco ISE, ACAS Scanners, and Administrator Workstations    #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000140] Define extended ACL permitting only management subnet
+! [CISC-ND-000290] This requirement is enforced by applying `log` or `log-input` to ACL entries
+no ip access-list extended {{ net_mgmt_acl_name | default('NET_MGMT_ACL', true)}}
+ip access-list extended {{ net_mgmt_acl_name }}
+ 10 remark == Permit SSH: Cisco Catalyst Center ==
+ 10 permit tcp host {{ ccc_ip }} any eq 22 log-input 
+ 20 remark == Permit SSH: Cisco Identity Services Engine ==
+ 20 permit tcp host {{ ise_ip_01 }} any eq 22 log-input
+ 30 permit tcp host {{ ise_ip_02 }} any eq 22 log-input
+ 40 remark == Permit SSH: Tenable ACAS Scanner ==
+ 40 permit tcp host {{ acas01_ip }} any eq 22 log-input
+ 50 remark == Permit SSH: Network Admin Network ==
+ 50 permit tcp {{ net_admin_network }} {{ net_admin_wildcardmask | default('0.0.0.255', true) }} any eq 22 log-input
+ 60 remark == Deny SSH: All Other Access ==
+ 60 deny ip any any log-input
+ 70 remark == Permit All SSH - Testing Only ==
+ 70 permit ip any any log-input
+
+! [CISC-ND-000140] Apply Access Control Lists to  VTY lines
+! [CISC-ND-000290] This requirement is enforced by applying `log` or `log-input` to ACL entries
+no ip access-list extended DENY_ALL
+ip access-list extended DENY_ALL
+ 10 remark == DENY ALL: Deny all Traffic
+ 10 deny ip any any log-input
+
+line vty 0 4
+ access-class {{ net_mgmt_acl_name }} in vrf-also
+line vty 5 15 
+ access-class DENY_ALL in vrf-also
+
+
+
+{# =================================================================================================================================================== #}
+{#  ACCOUNT LOCKOUT – EXCESSIVE LOGIN FAILURES                                                                                                         #}
+{#  CISC-ND-000150 – The Cisco switch must be configured to enforce the limit of three consecutive invalid logon attempts, after which time it must    #}
+{#                   lock out the user account from accessing the device for 15 minutes.                                                               #}
+{#  STATUS: COMPLETE, Joel Baker, 19 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000150] Lock out after 3 failed attempts for 15 minutes; observe over 120 seconds
+login block-for 900 attempts 3 within 120 
+
+{# =================================================================================================================================================== #}
+{#  BANNER – STANDARD MANDATORY DoD NOTICE AND CONSENT                                                                                                 #}
+{#  CISC-ND-000160 – The Cisco switch must be configured to display the Standard Mandatory DoD Notice and Consent Banner before granting access        #}
+{#                   to the device.                                                                                                                    #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+
+! [CISC-ND-000160] DoD Login Banner (boxed to 78 chars wide, '+' corners, '-' top/bottom, '|' sides)
+
+<MLTCMD>banner login X
++----------------------------------------------------------------------------+
+|  You are accessing a U.S. Government (USG) Information System (IS) that    |
+|  is provided for USG-authorized use only.                                  |
+|                                                                            |
+|  By using this IS (which includes any device attached to this IS), you     |
+|  consent to the following conditions:                                      |
+|                                                                            |
+|  -The USG routinely intercepts and monitors communications on this IS for  |
+|   purposes including, but not limited to, penetration testing, COMSEC      |
+|   monitoring, network operations and defense, personnel misconduct (PM),   |
+|   law enforcement (LE), and counterintelligence (CI) investigations.       |
+|                                                                            |
+|  -At any time, the USG may inspect and seize data stored on this IS.       |
+|                                                                            |
+|  -Communications using, or data stored on, this IS are not private, are    |
+|   subject to routine monitoring, interception, and search, and may be      |
+|   disclosed or used for any USG-authorized purpose.                        |
+|                                                                            |
+|  -This IS includes security measures (e.g., authentication and access      |
+|   controls) to protect USG interests--not for your personal benefit or     |
+|   privacy.                                                                 |
+|                                                                            |
+|  -Notwithstanding the above, using this IS does not constitute consent     |
+|   to PM, LE or CI investigative searching or monitoring of the content     |
+|   of privileged communications, or work product, related to personal       |
+|   representation or services by attorneys, psychotherapists, or clergy,    |
+|   and their assistants. Such communications and work product are private   |
+|   and confidential. See User Agreement for details.                        |
++----------------------------------------------------------------------------+
+X</MLTCMD>
+
+
+
+{# =================================================================================================================================================== #}
+{#  AUDIT TIMESTAMPS                                                                                                                                   #}
+{#  CISC-ND-000280 – The Cisco switch must produce audit records containing information to establish when (date and time) the events occurred.         #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000280] Produce audit records with date and time of events
+service timestamps log datetime localtime
+
+
+
+{# =================================================================================================================================================== #}
+{#  AUDIT RECORDS – EVENT LOCATION                                                                                                                     #}
+{#  CISC-ND-000290 – The Cisco switch must produce audit records containing information to establish where the events occurred.                        #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000290] This requirement is enforced by applying `log-input` to ACL deny entries so that audit records capture the source/destination
+! See STIG entries with ACL's
+
+
+
+{# =================================================================================================================================================== #}
+{#  AUDIT & SOFTWARE PROTECTION                                                                                                                        #}
+{#  CISC-ND-000380 – The Cisco switch must be configured to protect audit information from unauthorized modification.                                  #}
+{#  CISC-ND-000390 – The Cisco switch must be configured to protect audit information from unauthorized deletion.                                      #}
+{#  CISC-ND-000460 – The Cisco switch must be configured to limit privileges to change the software resident within software libraries.                #}
+{#  STATUS: COMPLETE, Joel Baker, 19 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000380] Restrict access to audit/log files to privilege level 15
+! [CISC-ND-000390] Restrict access to audit/log files to privilege level 15
+! [CISC-ND-000460] Restrict modification of software libraries to privilege level 15
+file privilege 15
+
+
+
+{# =================================================================================================================================================== #}
+{#  UNNECESSARY & NON-SECURE SERVICES                                                                                                                  #}
+{#  CISC-ND-000470 – The Cisco switch must be configured to prohibit the use of all unnecessary and nonsecure functions and services.                  #}
+{#  STATUS: COMPLETE, Joel Baker, 19 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000470] Disable legacy or non-secure services
+! no boot network                                  ! Disables booting from a network server (legacy)
+no boot system switch all                          ! Removes all boot statements from the configuration
+boot system switch all bootflash:packages.conf     ! Add the install mode boot configuration
+no ip boot server                                  ! Disables BOOTP server functionality
+no ip bootp server                                 ! Disables BOOTP server functionality (older syntax)
+no ip dns server                                   ! Disables the switch acting as a DNS server
+! no ip identd                                     ! Disables the ident protocol (TCP/113), exposes user info (legacy)
+no ip finger                                       ! Disables the finger service (TCP/79), exposes user info
+no ip http server                                  ! Disables unencrypted HTTP management
+no ip rcmd rcp-enable                              ! Disables remote copy (RCP) service
+no ip rcmd rsh-enable                              ! Disables remote shell (rsh) service
+no service config                                  ! Disables auto-loading configuration files from the network
+no service finger                                  ! Disables finger service (redundant safeguard)
+no service tcp-small-servers                       ! Disables legacy TCP small servers (echo, discard, daytime, chargen)
+no service udp-small-servers                       ! Disables legacy UDP small servers (echo, discard, daytime, chargen)
+no service pad                                     ! Disables packet assembler/disassembler (X.25 legacy)
+no service call-home                               ! Disables Call-Home feature
+
+
+
+{# =================================================================================================================================================== #}
+{#  PASSWORD POLICY – COMMON CRITERIA                                                                                                                  #}
+{#  CISC-ND-000550 – The Cisco switch must be configured to enforce a minimum 15-character password length.                                            #}
+{#  CISC-ND-000570 – The Cisco switch must be configured to enforce password complexity by requiring that at least one uppercase character be used.    #}
+{#  CISC-ND-000580 – The Cisco switch must be configured to enforce password complexity by requiring that at least one lowercase character be used.    #}
+{#  CISC-ND-000590 – The Cisco switch must be configured to enforce password complexity by requiring that at least one numeric character be used.      #}
+{#  CISC-ND-000600 – The Cisco switch must be configured to enforce password complexity by requiring that at least one special character be used.      #}
+{#  CISC-ND-000610 – The Cisco switch must be configured to require that when a password is changed, the characters are changed in at least eight of   #}
+{#                   the positions within the password.                                                                                                #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000550] Enforce a minimum 15-character password length
+! [CISC-ND-000570] Require at least one uppercase character in all passwords
+! [CISC-ND-000580] Require at least one lowercase character in all passwords
+! [CISC-ND-000590] Require at least one numeric character in all passwords
+! [CISC-ND-000600] Require at least one special character in all passwords
+! [CISC-ND-000610] Require that at least 8 positions change when a password is changed
+! [CISC-ND-001370] Enable AAA new-model services
+aaa new-model
+aaa authentication login default local
+aaa authorization exec default local if-authenticated
+aaa common-criteria policy PASSWORD_POLICY
+ min-length 15
+ upper-case 1
+ lower-case 1
+ numeric-count 1
+ special-case 1
+ char-changes 8
+
+
+
+{# =================================================================================================================================================== #}
+{#  LOCAL ACCOUNT – LAST RESORT                                                                                                                        #}
+{#  CISC-ND-000490 – The Cisco switch must be configured with only one local account to be used as the account of last resort in the event the         #}
+{#                   authentication server is unavailable.                                                                                             #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000490] Define single local fallback account with full privilege for recovery
+username {{ local_username }} privilege 15 common-criteria-policy PASSWORD_POLICY algorithm-type sha256 secret {{ local_password | default('IH@v3Th3P0w3r!') }}
+
+! [CISC-ND-000490] Use TACACS+ for login with local fallback if servers are unavailable
+aaa authentication login default local
+aaa authorization exec default local if-authenticated
+
+
+
+{# =================================================================================================================================================== #}
+{#  PASSWORD STORAGE – ENCRYPTION                                                                                                                      #}
+{#  CISC-ND-000620 – The Cisco switch must only store cryptographic representations of passwords.                                                      #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000620] Encrypt all stored passwords so they are not kept in cleartext
+service password-encryption
+
+
+
+{# =================================================================================================================================================== #}
+{#  SESSION TIMEOUT – MANAGEMENT CONNECTIONS                                                                                                           #}
+{#  CISC-ND-000720 – The Cisco switch must be configured to terminate all network connections associated with device management after five minutes of  #}
+{#                   inactivity.                                                                                                                       #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000720] Enforce 5-minute inactivity timeout for web-based management or 10-minutes of total session length
+ip http timeout-policy idle 300 life 600 requests 10
+
+! [CISC-ND-000720] Enforce 5-minute inactivity timeout on console
+line con 0
+ exec-timeout 5 0
+
+! [CISC-ND-000720] Enforce 5-minute inactivity timeout on active VTYs
+line vty 0 4
+ exec-timeout 5 0
+
+! [CISC-ND-000720] Enforce 5-minute inactivity timeout on disabled VTYs (kept consistent)
+line vty 5 15
+ exec-timeout 5 0
+
+
+
+{# =================================================================================================================================================== #}
+{#  AUDIT STORAGE – BUFFERED LOGGING                                                                                                                   #}
+{#  CISC-ND-000980 – The Cisco switch must be configured to allocate audit record storage capacity in accordance with organization-defined             #}
+{#                   requirements.                                                                                                                     #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-000980] Allocate sufficient local audit buffer (default 4 MiB)
+logging buffered 4194304 informational
+
+{# ========================================================= SECTION - FOR TESTING =================================================================== #}
+
+{# =================================================================================================================================================== #}
+{#  AUDIT FAILURE ALERTS                                                                                                                               #}
+{#  CISC-ND-001000 – The Cisco switch must be configured to generate an alert for all audit failure events.                                            #}
+{#  STATUS: COMPLETE, Joel Baker, 20 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001000] Generate alerts for all audit failure events
+logging trap informational
+
+
+
+{# =================================================================================================================================================== #}
+{#  TIME SYNCHRONIZATION – REDUNDANT SOURCES WITH AUTHENTICATION                                                                                       #}
+{#  CISC-ND-001030 – The Cisco switch must be configured to synchronize its clock with the primary and secondary time sources using redundant          #}
+{#                   authoritative time sources.                                                                                                       #}
+{#  CISC-ND-001150 – The Cisco switch must be configured to authenticate Network Time Protocol (NTP) sources using authentication that is              #}
+{#                   cryptographically based.                                                                                                          #}
+{#  STATUS: WORK IN PROGRESS                                                                                                                           #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! Remove NTP configuration from switch
+no ntp
+
+! [CISC-ND-001150] Define NTP authentication key using HMAC-SHA2-256
+ntp authentication-key {{ ntp_key_id_01 | default('1', true) }} {{ ntp_encryption_type | default ('hmac-sha2-256', true) }} {{ ntp_password_01 }}
+ntp authentication-key {{ ntp_key_id_02 | default('2', true) }} {{ ntp_encryption_type | default ('hmac-sha2-256', true) }} {{ ntp_password_02 }}
+
+! [CISC-ND-001150] Enable NTP authentication and trust the key
+ntp authenticate
+ntp trusted-key {{ ntp_key_id_01 | default('1') }}
+ntp trusted-key {{ ntp_key_id_02 | default('2') }}
+
+! [CISC-ND-001030] Configure redundant authoritative NTP servers
+! [CISC-ND-001150] Configure redundant authoritative NTP encyrption
+ntp server {{ ntp_server_ip_01 }} key {{ ntp_key_id_01 | default(1) }}
+ntp server {{ ntp_server_ip_02 }} key {{ ntp_key_id_02 | default(2) }}
+
+
+
+{# =================================================================================================================================================== #}
+{#  SNMPv3 – AUTHENTICATION & ENCRYPTION                                                                                                               #}
+{#  CISC-ND-001130 – The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication        #}
+{#                   Code (HMAC).                                                                                                                      #}
+{#  CISC-ND-001140 – The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.                               #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001130 / CISC-ND-001140] Configure SNMPv3 group with authentication and encryption (authPriv)
+snmp-server group {{ snmpv3_group_name | default('SNMPV3_GROUP_CCC', true) }} v3 priv read {{ snmpv3_view_read_name | default('SNMPV3_CCC_READ', true) }} write {{ snmp_view_write_name | default('SNMPV3_CCC_WRITE', true) }}
+
+! [CISC-ND-001130 / CISC-ND-001140] Configure SNMPv3 user with HMAC-SHA authentication and AES-256 encryption
+snmp-server user {{ snmpv3_user_name | default('SNMPV3_CCC_USER', true) }} {{ snmpv3_group_name | default('SNMPV3_GROUP_CCC') }} v3 auth sha {{ snmpv3_auth_password }} priv aes 256 {{ snmpv3_priv_password }}
+
+! [CISC-ND-001130 / CISC-ND-001140] Configure SNMPv3 host using authenticated and encrypted SNMPv3
+snmp-server host {{ ccc_ip }} version 3 priv {{ snmpv3_user_name | default('SNMPV3_CCC_USER', true) }}
+
+
+
+{# =================================================================================================================================================== #}
+{#  SSH HARDENING – FIPS HMAC + ENCRYPTION                                                                                                             #}
+{#  CISC-ND-001200 – The Cisco switch must be configured to use FIPS-validated Keyed-Hash Message Authentication Code (HMAC) to protect the integrity  #}
+{#                   of remote maintenance sessions.                                                                                                   #}
+{#  CISC-ND-001210 – The Cisco switch must be configured to implement cryptographic mechanisms to protect the confidentiality of remote maintenance    #}
+{#                   sessions.                                                                                                                         #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: NGIC Network Policy is to only permit the most complex cyphers for HMAC (SHA2-512) & Encryption (AES256)                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001200] Restrict SSH MAC algorithms to FIPS-validated HMAC-SHA2
+ip ssh server algorithm mac hmac-sha2-512
+
+! [CISC-ND-001210] Restrict SSH encryption algorithms to AES CTR modes (128/192/256-bit)
+ip ssh server algorithm encryption aes256-ctr
+
+
+
+{# =================================================================================================================================================== #}
+{#  AAA – MULTIPLE AUTHENTICATION SERVERS                                                                                                              #}
+{#  CISC-ND-001370 – The Cisco switch must be configured to use at least two authentication servers for the purpose of authenticating users prior to   #}
+{#                   granting administrative access.                                                                                                   #}
+{#  STATUS: WORK IN PROGRESS                                                                                                                           #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001370] Define console authentication (local only)
+aaa authentication login CONSOLE_AUTH local
+
+! [CISC-ND-001370] Define login authentication using RADIUS group with local fallback
+aaa authentication login LOGIN_AUTHENTICATION tacacs+ radius local
+
+! [CISC-ND-001370] Apply AAA for web/HTTPS management
+! ip http authentication aaa login-authentication LOGIN_AUTHENTICATION
+ip http secure-server
+
+! [CISC-ND-001370] Configure at least two RADIUS servers
+! radius-server host {{ ise_ip_01 }} auth-port 1812 acct-port 1813 key {{ radius_key }}
+! radius-server host {{ ise_ip_02 }} auth-port 1812 acct-port 1813 key {{ radius_key }}
+
+! [CISC-ND-001370] Console line
+line con 0
+ login authentication CONSOLE_AUTH
+
+! [CISC-ND-001370] VTY lines
+! line vty 0 4
+! login authentication LOGIN_AUTHENTICATION
+! line vty 5 15
+! login authentication LOGIN_AUTHENTICATION
+
+
+
+{# =================================================================================================================================================== #}
+{#  CONFIG BACKUP – ON CHANGE (EEM)                                                                                                                    #}
+{#  CISC-ND-001410 – Backup config when changes occur (copy running-config via SCP)                                                                    #}
+{#  Dependencies: service tcl, clock set, reachable SCP host                                                                                           #}
+{#  Security note: Storing cleartext passwords in config is risky; prefer key-based auth if possible.                                                  #}
+{#  STATUS: WORK IN PROGRESS                                                                                                                           #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001410] EEM applet triggers on %SYS-5-CONFIG_I and backs up running-config via SCP
+! event manager applet BACKUP_CONFIG
+!  event syslog pattern "%SYS-5-CONFIG_I"
+!  action 1.0 info type routername
+!
+!  Build destination URL with username@host and path; password is supplied at prompt below
+!  If you use a VRF for mgmt, the 'vrf' keyword is appended to the copy command.
+!
+!  action 2.0 cli command "enable"
+!  action 3.0 cli command "terminal length 0"
+!  action 4.0 cli command "copy running-config scp://{{ scp_username | default('backupuser') }}@{{ scp_host | default('10.0.0.10') }}{{ remote_path | default('/netops/backups') }}/$_info_routername-config" pattern "Password:"
+!  action 5.0 cli command "{{ scp_password | default('ChangeMe_UseKeysInstead!') }}"
+!  action 6.0 syslog priority informational msg "EEM BACKUP_CONFIG: running-config sent to {{ scp_host | default('10.0.0.10') }}{{ remote_path | default('/netops/backups') }}/ $_info_routername-config"
+
+
+
+{# =================================================================================================================================================== #}
+{#  PKI CERTIFICATE ENROLLMENT                                                                                                                         #}
+{#  CISC-ND-001440 – The Cisco switch must be configured to obtain its public key certificates from an appropriate certificate policy through an       #}
+{#                   approved service provider.                                                                                                        #}
+{#  STATUS: WORK IN PROGRESS                                                                                                                           #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001440] Configure trustpoint for certificate enrollment
+! crypto pki trustpoint {{ trustpoint_name | default('CA_X') }}
+!  enrollment url {{trustpoint_url | default('http://trustpoint1.example.com') }}
+
+
+
+{# =================================================================================================================================================== #}
+{#  SYSLOG – MULTIPLE DESTINATIONS                                                                                                                     #}
+{#  CISC-ND-001450 – The Cisco switch must be configured to send log data to at least two central log servers for the purpose of forwarding alerts to  #}
+{#                   administrators and the ISSO.                                                                                                      #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001450] Configure at least two syslog servers
+logging host {{ syslog_server_01 }} vrf Mgmt-vrf
+logging host {{ syslog_server_02 }} vrf Mgmt-vrf
+
+
+
+{# =================================================================================================================================================== #}
+{#  IOS VERSION – SUPPORTED RELEASE                                                                                                                    #}
+{#  STIG: CISC-ND-001470 – The Cisco switch must be running an IOS release that is currently supported by Cisco Systems.                               #}
+{#  STATUS: COMPLETE, Joel Baker, 18 SEP 2025                                                                                                          #}
+{#  POLICY: As required by DISA STIG                                                                                                                   #}
+{# =================================================================================================================================================== #}
+
+! [CISC-ND-001470] This requirement cannot be enforced via CLI configuration.
+! Verify that the installed IOS-XE release is supported by Cisco and not end-of-support (EoS/EoL)
+! A report can be pulled from Cisco Catalyst Center showing IOS-XE Version per device

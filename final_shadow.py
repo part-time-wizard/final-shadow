@@ -255,7 +255,37 @@ print("transport output none")
 
 # \-- Warning Banners
 print("banner login X")
-#  To-Do: Add appropriate warning banner text for DoD
+print("+----------------------------------------------------------------------------+")
+print("|  You are accessing a U.S. Government (USG) Information System (IS) that    |")
+print("|  is provided for USG-authorized use only.                                  |")
+print("|                                                                            |")
+print("|  By using this IS (which includes any device attached to this IS), you     |")
+print("|  consent to the following conditions:                                      |")
+print("|                                                                            |")
+print("|  -The USG routinely intercepts and monitors communications on this IS for  |")
+print("|   purposes including, but not limited to, penetration testing, COMSEC      |")
+print("|   monitoring, network operations and defense, personnel misconduct (PM),   |")
+print("|   law enforcement (LE), and counterintelligence (CI) investigations.       |")
+print("|                                                                            |")
+print("|  -At any time, the USG may inspect and seize data stored on this IS.       |")
+print("|                                                                            |")
+print("|  -Communications using, or data stored on, this IS are not private, are    |")
+print("|   subject to routine monitoring, interception, and search, and may be      |")
+print("|   disclosed or used for any USG-authorized purpose.                        |")
+print("|                                                                            |")
+print("|  -This IS includes security measures (e.g., authentication and access      |")
+print("|   controls) to protect USG interests--not for your personal benefit or     |")
+print("|   privacy.                                                                 |")
+print("|                                                                            |")
+print("|  -Notwithstanding the above, using this IS does not constitute consent     |")
+print("|   to PM, LE or CI investigative searching or monitoring of the content     |")
+print("|   of privileged communications, or work product, related to personal       |")
+print("|   representation or services by attorneys, psychotherapists, or clergy,    |")
+print("|   and their assistants. Such communications and work product are private   |")
+print("|   and confidential. See User Agreement for details.                        |")
+print("+----------------------------------------------------------------------------+")
+print("X")
+
 
 # Authentication, Authorization, and Accounting
 # |-- TACACS+ Authentication
