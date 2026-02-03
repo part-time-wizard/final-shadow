@@ -300,3 +300,83 @@ print(" key <key>")
 # | \-- TACACS+ Over TLS 1.3
 
 # |-- Authentication Fallback
+
+# |-- Use of Type 7 Passwords
+
+# |-- TACACS+ Command Authorization
+
+# |-- TACACS+ Command Accounting
+
+# |-- RADIUS Authentication
+
+# Fortify the Simple Network Management Protocol
+
+# |-- SNMP Community Strings
+# |-- SNMP Community Strings with ACLs
+# |-- Infrastructure ACLs
+# |-- SNMP Views
+# |-- SNMP Version 3
+# |-- Management Plane Protection
+# Logging Best Practices
+# |-- Send Logs to a Central Location
+# |-- Logging Level
+# |-- Do Not Log to Console or Monitor Sessions
+# |-- Use Buffered Logging
+# |-- Configure Logging Source Interface
+# |-- Configure Logging Timestamps
+# Cisco IOS XE Software Configuration Management
+# |-- Configuration Replace and Configuration Rollback
+# |-- Exclusive Configuration Change Access
+# |-- Digitally Signed Cisco Software
+# |-- Configuration Change Notification and Logging
+# Control Plane
+# General Control Plane Hardening
+# |-- IP ICMP Redirects
+# |-- ICMP Unreachables
+# |-- Proxy ARP
+# |-- NTP Control Messages
+# Limit CPU Impact of Control Plane Traffic
+# |-- Understand Control Plane Traffic
+# |-- Infrastructure ACLs
+# |-- Receive ACLs
+# |-- CoPP
+# |-- Control Plane Protection
+# |-- Hardware Rate Limiters
+# Secure BGP
+# |-- TTL-based Security Protections
+# |-- BGP Peer Authentication with MD5
+# |-- Configure Maximum Prefixes
+# |-- Filter BGP Prefixes with Prefix Lists
+# |-- Filter BGP Prefixes with Autonomous System Path Access Lists
+# Secure Interior Gateway Protocols
+# Routing Protocol Authentication and Verification with Message Digest 5
+# |-- Passive-Interface Commands
+# |-- Route Filtering
+# |-- Routing Process Resource Consumption
+# Secure First Hop Redundancy Protocols
+# Data Plane
+# General Data Plane Hardening
+IP Options Selective Drop
+Disable IP Source Routing
+Disable ICMP Redirects
+Disable or Limit IP Directed Broadcasts
+Filter Transit Traffic with Transit ACLs
+ICMP Packet Filtering
+Filter IP Fragments
+ACL Support for Filtering IP Options
+Anti-Spoofing Protections
+Unicast RPF
+IP Source Guard
+Port Security
+Anti-Spoofing ACLs
+Limit CPU Impact of Data Plane Traffic
+Features and Traffic Types that Impact the CPU
+Filter on TTL Value
+Filter on the Presence of IP Options
+Control Plane Protection
+Traffic Identification and Traceback
+NetFlow
+Classification ACLs
+Access Control with PACLs
+Isolated VLANs
+Community VLANs
